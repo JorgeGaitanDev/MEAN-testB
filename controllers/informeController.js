@@ -6,14 +6,26 @@ exports.crearInforme = async (req, res) => {
     try {
         let informes = req.body;
 
+        // Verificar si el cuerpo de la solicitud está presente y no está vacío
+        if (!informes || informes.length === 0) {
+            return res.status(400).json({ msg: 'Cuerpo de solicitud vacío' });
+        }
+
         // Si el cuerpo de la solicitud no es un array, lo convierte en un array
         if (!Array.isArray(informes)) {
             informes = [informes];
         }
 
+        // Validar los campos requeridos
+        for (const informe of informes) {
+            if (!informe.fecha_aplicaci_n || !informe.a_o || !informe.cod_territorio || !informe.nom_territorio || !informe.cantidad_dosis_aplicadas || !informe.fecha_corte) {
+                return res.status(400).json({ msg: 'Datos incompletos' });
+            }
+        }
+
         // Guardar todos los informes usando insertMany
         const result = await Informe.insertMany(informes);
-        res.status(201).send(result);
+        res.status(200).send(result);
     } catch (error) {
         console.log(error);
         res.status(500).send('Hubo un error');
